@@ -6,8 +6,8 @@ package lorem
 
 import (
 	"math/rand"
-	"time"
 	"strings"
+	"time"
 )
 
 type Lorem struct {
@@ -22,37 +22,36 @@ func New() *Lorem {
 
 // Generate a natural word len.
 func (self *Lorem) genWordLen() int {
-	f := self.r.Float32() * 100
+	n := self.r.Intn(10000)
 	// a table of word lengths and their frequencies.
 	switch {
-	case f < 1.939:
+	case n < 193:
 		return 1
-	case f < 19.01:
+	case n < 1901:
 		return 2
-	case f < 38.00:
+	case n < 3800:
 		return 3
-	case f < 50.41:
+	case n < 5041:
 		return 4
-	case f < 61.00:
+	case n < 6100:
 		return 5
-	case f < 70.09:
+	case n < 7009:
 		return 6
-	case f < 78.97:
+	case n < 7897:
 		return 7
-	case f < 85.65:
+	case n < 8565:
 		return 8
-	case f < 90.87:
+	case n < 9087:
 		return 9
-	case f < 95.05:
+	case n < 9505:
 		return 10
-	case f < 97.27:
+	case n < 9727:
 		return 11
-	case f < 98.67:
+	case n < 9867:
 		return 12
-	case f < 100.0:
+	default:
 		return 13
 	}
-	return 2 // shouldn't get here
 }
 
 func (self *Lorem) intRange(min, max int) int {
@@ -102,7 +101,11 @@ func (self *Lorem) Sentence(min, max int) string {
 	maxcommas := 2
 	numcomma := 0
 	for i := 0; i < n; i++ {
-		ws = append(ws, (self.word(self.genWordLen())))
+		word := self.word(self.genWordLen())
+		if i == 0 {
+			word = strings.ToUpper(word[:1]) + word[1:]
+		}
+		ws = append(ws, word)
 
 		// maybe insert a comma, if there are currently < 2 commas, and
 		// the current word is not the last or first
@@ -113,9 +116,7 @@ func (self *Lorem) Sentence(min, max int) string {
 
 	}
 
-	sentence := strings.Join(ws, " ") + "."
-	sentence = strings.ToUpper(sentence[:1]) + sentence[1:]
-	return sentence
+	return strings.Join(ws, " ") + "."
 }
 
 // Generate a paragraph with a specified range of sentenences.
