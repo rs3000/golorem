@@ -5,6 +5,7 @@
 package lorem
 
 import (
+	"bytes"
 	"math/rand"
 	"strings"
 	"time"
@@ -66,24 +67,15 @@ func (self *Lorem) intRange(min, max int) int {
 }
 
 func (self *Lorem) word(wordLen int) string {
-	if wordLen < 1 {
-		wordLen = 1
+	index := wordLen - 1
+	if index < 0 {
+		index = 0
 	}
-	if wordLen > 13 {
-		wordLen = 13
+	if index >= len(wordlist) {
+		index = len(wordlist) - 1
 	}
-
-	n := self.r.Int() % len(wordlist)
-	for {
-		if n >= len(wordlist)-1 {
-			n = 0
-		}
-		if len(wordlist[n]) == wordLen {
-			return wordlist[n]
-		}
-		n++
-	}
-	return ""
+	n := self.r.Int() % len(wordlist[index])
+	return wordlist[index][n]
 }
 
 // Generate a word in a specfied range of letters.
@@ -94,29 +86,35 @@ func (self *Lorem) Word(min, max int) string {
 
 // Generate a sentence with a specified range of words.
 func (self *Lorem) Sentence(min, max int) string {
+	var buffer bytes.Buffer
+	self.writeSentence(&buffer, min, max)
+	return buffer.String()
+}
+
+func (self *Lorem) writeSentence(buffer *bytes.Buffer, min, max int) {
 	n := self.intRange(min, max)
 
 	// grab some words
-	ws := []string{}
 	maxcommas := 2
 	numcomma := 0
 	for i := 0; i < n; i++ {
 		word := self.word(self.genWordLen())
 		if i == 0 {
-			word = strings.ToUpper(word[:1]) + word[1:]
+			buffer.WriteString(strings.ToUpper(word[:1]))
+			buffer.WriteString(word[1:])
+		} else {
+			buffer.WriteRune(' ')
+			buffer.WriteString(word)
 		}
-		ws = append(ws, word)
 
 		// maybe insert a comma, if there are currently < 2 commas, and
 		// the current word is not the last or first
 		if (self.r.Int()%n == 0) && numcomma < maxcommas && i < n-1 && i > 2 {
-			ws[i-1] += ","
+			buffer.WriteRune(',')
 			numcomma += 1
 		}
-
 	}
-
-	return strings.Join(ws, " ") + "."
+	buffer.WriteRune('.')
 }
 
 // Generate a paragraph with a specified range of sentenences.
@@ -128,11 +126,14 @@ const (
 func (self *Lorem) Paragraph(min, max int) string {
 	n := self.intRange(min, max)
 
-	p := []string{}
+	var buffer bytes.Buffer
 	for i := 0; i < n; i++ {
-		p = append(p, self.Sentence(minwords, maxwords))
+		if i > 0 {
+			buffer.WriteRune(' ')
+		}
+		self.writeSentence(&buffer, min, max)
 	}
-	return strings.Join(p, " ")
+	return buffer.String()
 }
 
 // Generate a random URL
