@@ -21,6 +21,10 @@ func New() *Lorem {
 	}
 }
 
+func NewWithRand(r *rand.Rand) *Lorem {
+	return &Lorem{r}
+}
+
 // Generate a natural word len.
 func (self *Lorem) genWordLen() int {
 	n := self.r.Intn(10000)

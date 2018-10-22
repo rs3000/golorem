@@ -8,15 +8,16 @@ import "testing"
 import "log"
 
 func TestAll(t *testing.T) {
+	l := New()
 	for i := 1; i < 14; i++ {
-		log.Print(word(i))
+		log.Print(l.word(i))
 		for j := 1; j < 14; j++ {
-			log.Print(Word(i, j))
-			log.Print(Sentence(i, j))
-			log.Print(Paragraph(i, j))
+			log.Print(l.Word(i, j))
+			log.Print(l.Sentence(i, j))
+			log.Print(l.Paragraph(i, j))
 		}
-		log.Print(Url())
-		log.Print(Host())
-		log.Print(Email())
+		log.Print(l.Url())
+		log.Print(l.Host())
+		log.Print(l.Email())
 	}
 }
